@@ -32,44 +32,44 @@ import matplotlib.pyplot as plt
 ```
 ---
 ```python
-###Read the CSV file into a DataFrame
+# Read the CSV file into a DataFrame
 
 aviation_data = pd.read_csv('data\AviationData.csv', encoding='latin1')
 
 aviation_data.info()
 ```
 ---
-## Step 1: Filter data by columns
+## Step 1: Data preparation
 
  - Drop columns with over 50% missing values
 
 ```python
-#### Drop columns with more than 50% missing values
+# Drop columns with more than 50% missing values
 
 columns_to_drop_1 = ['Latitude', 'Longitude', 'FAR.Description', 'Schedule', 'Air.carrier','Airport.Code', 'Airport.Name']
 aviation_data = aviation_data.drop(columns=columns_to_drop_1)
 aviation_data.isnull().sum()
 aviation_data.shape
 ```
+---
 ## Step 2: Data Cleaning
 
 - Removing rows with missing or irrelevant values in key columns like `Make`, `Model`, `Location`, `Total.Fatal.Injuries`, and `Aircraft.Category`.
-- Converting numeric columns (e.g., `Total.Fatal.Injuries`) to appropriate data types.
+- Remove whitespaces
+- Converting numeric columns (e.g., `Total.Fatal.Injuries`) to appropriate data types
+- Filter out rows with invalid or negative injury values
 
 ```python
 # Drop rows with missing values in 'Make' , 'Model' and 'Location columns
 
 aviation_data.dropna(subset=['Make', 'Model', 'Location', 'Total.Fatal.Injuries', 'Aircraft.Category'], inplace=True)
-```
-```python
+
 # Strip whitespaces
 aviation_data = aviation_data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-
 
 # Convert Total.Fatal.Injuries to numeric
 
 aviation_data["Total.Fatal.Injuries"] = pd.to_numeric(aviation_data["Total.Fatal.Injuries"], errors="coerce")
-
 
 # Filter out rows with invalid or negative injury values
 aviation_data = aviation_data[aviation_data["Total.Fatal.Injuries"] >= 0]
@@ -77,14 +77,14 @@ aviation_data.shape
 ```
 
 ---
-### Step 4: Categorize data
+## Step 3: Categorize data
 
  - Filter data to required private and commercial airplanes
  - Filter data by Airplane category
 
  ```python
 # Define the custom order for sorting
->custom_order = ["Personal", "Business", "Ferry", "Executive/Corporate"]
+custom_order = ["Personal", "Business", "Ferry", "Executive/Corporate"]
 
 # Sort the dataframe based on the custom order
 private_and_commercial = aviation_data[aviation_data['Purpose.of.flight'].isin(custom_order)].copy()
@@ -96,7 +96,7 @@ airplanes_data = private_and_commercial[private_and_commercial['Aircraft.Categor
 ```
 
 ---
-### Step 5: Analyze Risk by Aircraft Model
+## Step 4: Analyze Risk by Aircraft Model
 We will group the data by `Make` and `Model` to calculate:
 - Fatality rate by `Make`
 - Fatality rate by `Model`
@@ -116,97 +116,110 @@ fatality_rates_by_make = makes_with_min_accidents.groupby('Make').agg(
 fatality_rates_by_make['fatality_rate'] = fatality_rates_by_make['total_fatalities'] / fatality_rates_by_make['total_accidents']
 
 # Sort by fatality rate in ascending order
->lowest_fatality_rates_by_make = fatality_rates_by_make.sort_values('fatality_rate', ascending=True)
+lowest_fatality_rates_by_make = fatality_rates_by_make.sort_values('fatality_rate', ascending=True)
 ```
-
->X = 50
+```python
+X = 50
 
 # Filter models with at least X accidents
->models_with_min_accidents = airplanes_data.groupby('Model').filter(lambda x: len(x) >= X)
+models_with_min_accidents = airplanes_data.groupby('Model').filter(lambda x: len(x) >= X)
 
 # Calculate fatality rate for each model
->fatality_rates = models_with_min_accidents.groupby('Model').agg(
->    total_accidents=('Event.Id', 'count'),
->    total_fatalities=('Total.Fatal.Injuries', 'sum')
->)
->fatality_rates['fatality_rate'] = fatality_rates['total_fatalities'] / fatality_rates['total_accidents']
+fatality_rates = models_with_min_accidents.groupby('Model').agg(
+    total_accidents=('Event.Id', 'count'),
+    total_fatalities=('Total.Fatal.Injuries', 'sum')
+)
+fatality_rates['fatality_rate'] = fatality_rates['total_fatalities'] / fatality_rates['total_accidents']
 
 # Sort by fatality rate in ascending order
->lowest_fatality_rates = fatality_rates.sort_values('fatality_rate', ascending=True)
-
+lowest_fatality_rates = fatality_rates.sort_values('fatality_rate', ascending=True)
+```
+```python
 # Group by Make and Model
->risk_analysis = airplanes_data.groupby(["Make", "Model"]).agg(
+risk_analysis = airplanes_data.groupby(["Make", "Model"]).agg(
     Total_Accidents=("Event.Id", "count"),
     Total_Fatalities=("Total.Fatal.Injuries", "sum"),
     Avg_Fatalities_Per_Accident=("Total.Fatal.Injuries", "mean")
 ).reset_index()
 
 # Sort by Total_Fatalities to identify low-risk aircraft
->low_risk_aircraft = risk_analysis.sort_values(by="Total_Fatalities", ascending=True)
+low_risk_aircraft = risk_analysis.sort_values(by="Total_Fatalities", ascending=True)
+```
 
-# Define a threshold for popularity (e.g., aircraft with more than 50 accidents)
->popular_airplanes = popular_grouped[popular_grouped["Total_Accidents"] > 50]
-
+```python
 # Group by Make and Model for popular aircraft
->popular_grouped = airplanes_data.groupby(["Make", "Model"]).agg(
+popular_grouped = airplanes_data.groupby(["Make", "Model"]).agg(
     Total_Accidents=("Event.Id", "count"),
     Total_Fatalities=("Total.Fatal.Injuries", "sum"),
     Avg_Fatalities_Per_Accident=("Total.Fatal.Injuries", "mean")
 ).reset_index()
 
+# Define a threshold for popularity (e.g., aircraft with more than 50 accidents)
+popular_airplanes = popular_grouped[popular_grouped["Total_Accidents"] > 50]
+
 # Sort by Total_Accidents in descending order
->popular_airplanes = popular_grouped.sort_values(by="Total_Accidents", ascending=False)
->popular_airplanes.head(10)
-
-
-### Step 6: Visualization
+popular_airplanes = popular_grouped.sort_values(by="Total_Accidents", ascending=False)
+popular_airplanes.head(10)
+```
+---
+## Step 5: Visualization
 1. Fatality risk by `Make`
 2. Fatality risk by `Model`
 3. Low risk airplanes
->top_10_lowest_fatality_rates = lowest_fatality_rates_by_make.head(10)
+
+```python
+top_10_lowest_fatality_rates = lowest_fatality_rates_by_make.head(10)
 
 # Plot the data
->plt.figure(figsize=(10, 6))
->plt.bar(top_10_lowest_fatality_rates.index, top_10_lowest_fatality_rates['fatality_rate'], color='green')
->plt.xlabel('Make', fontsize=12)
->plt.ylabel('Fatality Rate', fontsize=12)
->plt.title('Top 10 Makes with Lowest Fatality Rates', fontsize=14)
->plt.xticks(rotation=90)
->plt.tight_layout()
->plt.show()
+plt.figure(figsize=(10, 6))
+plt.bar(top_10_lowest_fatality_rates.index, top_10_lowest_fatality_rates['fatality_rate'], color='green')
+plt.xlabel('Make', fontsize=12)
+plt.ylabel('Fatality Rate', fontsize=12)
+plt.title('Top 10 Makes with Lowest Fatality Rates', fontsize=14)
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+```
 
 ![alt text](Images\image.png)
 
->plt.figure(figsize=(10, 6))
->plt.bar(lowest_fatality_rates.index[:10], lowest_fatality_rates['fatality_rate'][:10], color='orange')
->plt.xlabel('Model', fontsize=12)
->plt.ylabel('Fatality Rate', fontsize=12)
->plt.title('Top 10 Models with Lowest Fatality Rates', fontsize=14)
->plt.xticks(rotation=90)
->plt.tight_layout()
->plt.show()
+---
+
+```python
+#Second Visualization
+plt.figure(figsize=(10, 6))
+plt.bar(lowest_fatality_rates.index[:10], lowest_fatality_rates['fatality_rate'][:10], color='orange')
+plt.xlabel('Model', fontsize=12)
+plt.ylabel('Fatality Rate', fontsize=12)
+plt.title('Top 10 Models with Lowest Fatality Rates', fontsize=14)
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+```
 
 ![alt text](Images\image-1.png)
 
+```python
 # Select the top 10 low-risk popular aircraft 
->top_10_low_risk_popular_aircraft = popular_airplanes.head(10)
+top_10_low_risk_popular_aircraft = popular_airplanes.head(10)
 
 # Plot the data
->plt.figure(figsize=(10, 6))
->plt.bar(top_10_low_risk_popular_aircraft['Make'] + " " + top_10_low_risk_popular_aircraft['Model'], 
+plt.figure(figsize=(10, 6))
+plt.bar(top_10_low_risk_popular_aircraft['Make'] + " " + top_10_low_risk_popular_aircraft['Model'], 
     top_10_low_risk_popular_aircraft['Total_Fatalities'], color='lightgreen')
->plt.xlabel('Aircraft (Make and Model)', fontsize=12)
->plt.ylabel('Total Fatalities', fontsize=12)
->plt.title('Top 10 Low-Risk Aircraft by Total Fatalities', fontsize=14)
->plt.xticks(rotation=90)
->plt.tight_layout()
->plt.show()
+plt.xlabel('Aircraft (Make and Model)', fontsize=12)
+plt.ylabel('Total Fatalities', fontsize=12)
+plt.title('Top 10 Low-Risk Aircraft by Total Fatalities', fontsize=14)
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+```
 
 ![alt text](Images\image-2.png)
 
 ---
 
-### Step 7: Actionable Insights
+# Actionable Insights
 Based on the analysis, we can provide the following insights to the head of the aviation division:
 1. **Focus on Aircraft with Low Fatality Rates**: Aircraft models with the lowest total fatalities and average fatalities per accident are the safest choices for the business.
 2. **Consider Proven Manufacturers**: Aircraft from manufacturers with consistently low accident rates (e.g., Cessna, Piper) should be prioritized.

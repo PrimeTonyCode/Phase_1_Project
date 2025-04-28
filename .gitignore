@@ -2,6 +2,7 @@ app.ipynb
 workspace.txt
 analysis.ipynb
 trial.ipynb
+airplanes_data.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
