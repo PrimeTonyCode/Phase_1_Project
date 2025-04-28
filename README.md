@@ -42,8 +42,10 @@ aviation_data.info()
 ## Step 1: Filter data by columns
 
  - Drop columns with over 50% missing values
+
 ```python
 #### Drop columns with more than 50% missing values
+
 columns_to_drop_1 = ['Latitude', 'Longitude', 'FAR.Description', 'Schedule', 'Air.carrier','Airport.Code', 'Airport.Name']
 aviation_data = aviation_data.drop(columns=columns_to_drop_1)
 aviation_data.isnull().sum()
@@ -53,51 +55,69 @@ aviation_data.shape
 
 - Removing rows with missing or irrelevant values in key columns like `Make`, `Model`, `Location`, `Total.Fatal.Injuries`, and `Aircraft.Category`.
 - Converting numeric columns (e.g., `Total.Fatal.Injuries`) to appropriate data types.
-#### Drop rows with missing values in 'Make' , 'Model' and 'Location columns
->aviation_data.dropna(subset=['Make', 'Model', 'Location', 'Total.Fatal.Injuries', 'Aircraft.Category'], inplace=True)
 
+```python
+# Drop rows with missing values in 'Make' , 'Model' and 'Location columns
+
+aviation_data.dropna(subset=['Make', 'Model', 'Location', 'Total.Fatal.Injuries', 'Aircraft.Category'], inplace=True)
+```
+```python
 # Strip whitespaces
->aviation_data = aviation_data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+aviation_data = aviation_data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+
 
 # Convert Total.Fatal.Injuries to numeric
->aviation_data["Total.Fatal.Injuries"] = pd.to_numeric(aviation_data["Total.Fatal.Injuries"], errors="coerce")
+
+aviation_data["Total.Fatal.Injuries"] = pd.to_numeric(aviation_data["Total.Fatal.Injuries"], errors="coerce")
+
 
 # Filter out rows with invalid or negative injury values
->aviation_data = aviation_data[aviation_data["Total.Fatal.Injuries"] >= 0]
->aviation_data.shape
+aviation_data = aviation_data[aviation_data["Total.Fatal.Injuries"] >= 0]
+aviation_data.shape
+```
+
+---
 ### Step 4: Categorize data
 
  - Filter data to required private and commercial airplanes
  - Filter data by Airplane category
+
+ ```python
 # Define the custom order for sorting
 >custom_order = ["Personal", "Business", "Ferry", "Executive/Corporate"]
 
 # Sort the dataframe based on the custom order
->private_and_commercial = aviation_data[aviation_data['Purpose.of.flight'].isin(custom_order)].copy()
->private_and_commercial['Purpose.of.flight'] = pd.Categorical(private_and_commercial['Purpose.of.flight'], categories=custom_order, ordered=True)
->private_and_commercial = private_and_commercial.sort_values('Purpose.of.flight')
+private_and_commercial = aviation_data[aviation_data['Purpose.of.flight'].isin(custom_order)].copy()
+private_and_commercial['Purpose.of.flight'] = pd.Categorical(private_and_commercial['Purpose.of.flight'], categories=custom_order, ordered=True)
+private_and_commercial = private_and_commercial.sort_values('Purpose.of.flight')
 
->private_and_commercial.shape
->airplanes_data = private_and_commercial[private_and_commercial['Aircraft.Category'] == 'Airplane']
+private_and_commercial.shape
+airplanes_data = private_and_commercial[private_and_commercial['Aircraft.Category'] == 'Airplane']
+```
+
+---
 ### Step 5: Analyze Risk by Aircraft Model
 We will group the data by `Make` and `Model` to calculate:
 - Fatality rate by `Make`
 - Fatality rate by `Model`
 - Popular low risk airplanes
->X = 50
+
+```python
+X = 50
 
 # Filter makes with at least X accidents
->makes_with_min_accidents = airplanes_data.groupby('Make').filter(lambda x: len(x) >= X)
+makes_with_min_accidents = airplanes_data.groupby('Make').filter(lambda x: len(x) >= X)
 
 # Calculate fatality rate for each make
->fatality_rates_by_make = makes_with_min_accidents.groupby('Make').agg(
+fatality_rates_by_make = makes_with_min_accidents.groupby('Make').agg(
     total_accidents=('Event.Id', 'count'),
     total_fatalities=('Total.Fatal.Injuries', 'sum')
 )
->fatality_rates_by_make['fatality_rate'] = fatality_rates_by_make['total_fatalities'] / fatality_rates_by_make['total_accidents']
+fatality_rates_by_make['fatality_rate'] = fatality_rates_by_make['total_fatalities'] / fatality_rates_by_make['total_accidents']
 
 # Sort by fatality rate in ascending order
 >lowest_fatality_rates_by_make = fatality_rates_by_make.sort_values('fatality_rate', ascending=True)
+```
 
 >X = 50
 
