@@ -181,7 +181,32 @@ plt.tight_layout()
 plt.show()
 ```
 
-![image](Images\image.png)
+
+
+
+
+
+
+
+
+
+
+
+![png](Images/image.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
@@ -197,7 +222,27 @@ plt.tight_layout()
 plt.show()
 ```
 
-![image](Images\image-1.png)
+
+
+
+
+
+
+![png](Images/image-1.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```python
 # Select the top 10 low-risk popular aircraft 
@@ -215,7 +260,25 @@ plt.tight_layout()
 plt.show()
 ```
 
-![image](Images\image-2.png)
+
+
+
+
+
+![png](Images/image-2.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
