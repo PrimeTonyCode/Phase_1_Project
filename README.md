@@ -24,7 +24,7 @@ The dataset ['AviationData.csv'](https://www.kaggle.com/datasets/khsamaha/aviati
 
 Import the relevant libraries, open up the `AviationData.csv` file as dataframe called `aviation_data`. 
 ```python
-###Import pandas and matplotlib
+# Import pandas and matplotlib
 
 import pandas as pd
 
@@ -55,7 +55,7 @@ aviation_data.shape
 ## Step 2: Data Cleaning
 
 - Removing rows with missing or irrelevant values in key columns like `Make`, `Model`, `Location`, `Total.Fatal.Injuries`, and `Aircraft.Category`.
-- Remove whitespaces
+- Strip whitespaces from string columns and convert to uppercase
 - Converting numeric columns (e.g., `Total.Fatal.Injuries`) to appropriate data types
 - Filter out rows with invalid or negative injury values
 
@@ -64,8 +64,11 @@ aviation_data.shape
 
 aviation_data.dropna(subset=['Make', 'Model', 'Location', 'Total.Fatal.Injuries', 'Aircraft.Category'], inplace=True)
 
-# Strip whitespaces
+# Strip whitespaces from string columns and convert to uppercase
+# This is important for consistency in data analysis
 aviation_data = aviation_data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+aviation_data['Make'] = aviation_data['Make'].str.upper()
+aviation_data['Model'] = aviation_data['Model'].str.upper()
 
 # Convert Total.Fatal.Injuries to numeric
 
@@ -180,6 +183,8 @@ plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
 ```
+
+
 
 
 
