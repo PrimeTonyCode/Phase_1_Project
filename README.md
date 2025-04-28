@@ -27,14 +27,15 @@ Import the relevant libraries, open up the `AviationData.csv` file as dataframe 
 
 
 
-# Import pandas and matplotlib
+####
 import pandas as pd
+
 import matplotlib.pyplot as plt
 
-# Read the CSV file into a DataFrame
+#### Read the CSV file into a DataFrame
 aviation_data = pd.read_csv('data\AviationData.csv', encoding='latin1')
 
-# Display the various datatypes within the dataframe
+#### Display the various datatypes within the dataframe
 aviation_data.info()
 
 ### Step 1: Filter data by columns
@@ -134,6 +135,8 @@ popular_grouped = airplanes_data.groupby(["Make", "Model"]).agg(
 # Sort by Total_Accidents in descending order
 popular_airplanes = popular_grouped.sort_values(by="Total_Accidents", ascending=False)
 popular_airplanes.head(10)
+
+
 ### Step 6: Visualization
 1. Fatality risk by `Make`
 2. Fatality risk by `Model`
@@ -149,6 +152,8 @@ plt.title('Top 10 Makes with Lowest Fatality Rates', fontsize=14)
 plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
+(![alt text](image.png))
+
 plt.figure(figsize=(10, 6))
 plt.bar(lowest_fatality_rates.index[:10], lowest_fatality_rates['fatality_rate'][:10], color='orange')
 plt.xlabel('Model', fontsize=12)
@@ -157,6 +162,8 @@ plt.title('Top 10 Models with Lowest Fatality Rates', fontsize=14)
 plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
+![alt text](image-1.png)
+
 # Select the top 10 low-risk popular aircraft 
 top_10_low_risk_popular_aircraft = popular_airplanes.head(10)
 
@@ -170,6 +177,10 @@ plt.title('Top 10 Low-Risk Aircraft by Total Fatalities', fontsize=14)
 plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
+![alt text](image-2.png)
+
+
+
 ### Step 7: Actionable Insights
 Based on the analysis, we can provide the following insights to the head of the aviation division:
 1. **Focus on Aircraft with Low Fatality Rates**: Aircraft models with the lowest total fatalities and average fatalities per accident are the safest choices for the business.
