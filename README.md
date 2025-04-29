@@ -5,7 +5,7 @@
 * Student pace: Part time
 * Scheduled project review date/time: 29th April 2025 
 * Instructor name: Sam G. Mwangi
-* Blog post URL:
+* [Blog post URL:](https://public.tableau.com/app/profile/antony.njoroge6703/viz/LowRiskAnalysis/Dashboard1?publish=yes)
 
 # Business Understanding: 
 The company is expanding in to new industries to diversify its portfolio. Specifically, they are interested in purchasing and operating airplanes for commercial and private enterprises, but do not know anything about the potential risks of aircraft. 
